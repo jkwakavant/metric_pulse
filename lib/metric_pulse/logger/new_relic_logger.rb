@@ -1,3 +1,5 @@
+require 'newrelic_rpm'
+
 module MetricPulse
   module Logger
     class NewRelicLogger < MetricPulse::Logger::Base
@@ -5,8 +7,8 @@ module MetricPulse
 
       class << self
         def behavior(payload)
-          value = Oj.load(payload)
-          NewRelic::Agent.record_metric(payload["key"], payload["value"])
+          custom_metric = Oj.load(payload).deep_symbolize_keys
+          NewRelic::Agent.record_metric(custom_metric[:key], custom_metric[:value])
         end
       end
     end

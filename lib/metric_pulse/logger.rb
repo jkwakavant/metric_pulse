@@ -1,3 +1,5 @@
+require 'bunny'
+
 module MetricPulse
   module Logger
     class Base

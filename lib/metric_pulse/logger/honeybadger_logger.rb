@@ -1,3 +1,5 @@
+require 'honeybadger'
+
 module MetricPulse
   module Logger
     class HoneybadgerLogger < MetricPulse::Logger::Base
@@ -5,7 +7,7 @@ module MetricPulse
 
       class << self
         def behavior(payload)
-          value = Oj.load(payload)
+          exception = Oj.load(payload)
           Honeybadger.notify(exception) if Rails.env.production?
         end
       end

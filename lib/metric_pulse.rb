@@ -5,7 +5,6 @@ require "metric_pulse/logger"
 
 require "metric_pulse/logger/new_relic_logger"
 require "metric_pulse/logger/honeybadger_logger"
-require 'bunny'
 
 module MetricPulse
   
