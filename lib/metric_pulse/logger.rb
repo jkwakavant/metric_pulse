@@ -8,7 +8,8 @@ module MetricPulse
           @conn.close unless @conn.nil?
         end
 
-        def publish(routing_key, payload)
+        def report(payload, routing_key)
+          Oj.default_options = {:mode => :object}
           exchange.publish(Oj.dump(payload), :routing_key => routing_key)
         end
 

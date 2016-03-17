@@ -8,7 +8,8 @@ module MetricPulse
       class << self
         def behavior(payload)
           exception = Oj.load(payload)
-          Honeybadger.notify(exception) if Rails.env.production?
+          Oj.default_options = {:mode => :compat}
+          Honeybadger.notify(exception) if MetricPulse::Env.production?
         end
       end
     end
