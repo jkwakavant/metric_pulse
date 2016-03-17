@@ -3,14 +3,23 @@ require 'bunny'
 module MetricPulse
   module Logger
     class Base
+      ROUTING_KEYS = ["new_relic_logger", "honeybadger_logger"]
+
       class << self
         def close
           @conn.close unless @conn.nil?
         end
 
-        def report(payload, routing_key)
+        def report(payload, routing_key = nil)
           Oj.default_options = {:mode => :object}
-          exchange.publish(Oj.dump(payload), :routing_key => routing_key)
+          if routing_key.nil?
+            ROUTING_KEYS.each do |rk|
+              ## TO-DO: we only want to send the metric to applicable endpoints only
+              exchange.publish(Oj.dump(payload), :routing_key => rk) #if rk.accepts?(payload)
+            end
+          else
+            exchange.publish(Oj.dump(payload), :routing_key => routing_key)
+          end
         end
 
         def subscribe
