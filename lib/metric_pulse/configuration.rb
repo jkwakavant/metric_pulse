@@ -2,11 +2,13 @@
 
 module MetricPulse
   class << self
-    attr_accessor :conf_file
+    attr_accessor :allowed_keys
+    attr_accessor :routing_keys
 
     def configure
       yield self
-      @conf_file ||= "metric_pulse.yml"
+      @allowed_keys ||= {}
+      @routing_keys ||= ["new_relic_logger", "honeybadger_logger"]
     end
   end
 end

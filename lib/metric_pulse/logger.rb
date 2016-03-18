@@ -3,8 +3,6 @@ require 'bunny'
 module MetricPulse
   module Logger
     class Base
-      ROUTING_KEYS = ["new_relic_logger", "honeybadger_logger"]
-
       class << self
         def close
           @conn.close unless @conn.nil?
@@ -13,7 +11,7 @@ module MetricPulse
         def report(payload, routing_key = nil)
           Oj.default_options = {:mode => :object}
           if routing_key.nil?
-            ROUTING_KEYS.each do |rk|
+            @routing_keys.each do |rk|
               exchange.publish(Oj.dump(payload), :routing_key => rk) if applicable?(payload, rk)
             end
           else
