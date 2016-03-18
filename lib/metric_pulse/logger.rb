@@ -8,9 +8,15 @@ module MetricPulse
           @conn.close unless @conn.nil?
         end
 
-        def report(payload, routing_key)
+        def report(payload, routing_key = nil)
           Oj.default_options = {:mode => :object}
-          exchange.publish(Oj.dump(payload), :routing_key => routing_key)
+          if routing_key.nil?
+            MetricPulse.routing_keys.each do |rk|
+              exchange.publish(Oj.dump(payload), :routing_key => rk) if applicable?(payload.deep_symbolize_keys[:key], rk)
+            end
+          else
+            exchange.publish(Oj.dump(payload), :routing_key => routing_key)
+          end
         end
 
         def subscribe
@@ -43,6 +49,11 @@ module MetricPulse
 
         def exchange(topic = "custom_metric")
           @exchange ||= channel.topic(topic, :auto_delete => true)
+        end
+
+        def applicable?(key, routing_key)
+          ## TO-DO: need to downcase when we compare this key
+          (MetricPulse.allowed_keys && MetricPulse.allowed_keys[routing_key].include?(key)) ? true : false
         end
 
       end
