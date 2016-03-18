@@ -9,6 +9,7 @@ module MetricPulse
         def behavior(payload)
           custom_metric = Oj.load(payload).deep_symbolize_keys
 
+          ## TO-DO: we can report error/exception as well to new relic depending on the key
           NewRelic::Agent.record_metric(generate_custom_metric_key(custom_metric[:key]), custom_metric[:value]) if NewRelic::Agent.instance.started?
         end
 

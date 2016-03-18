@@ -11,8 +11,8 @@ module MetricPulse
         def report(payload, routing_key = nil)
           Oj.default_options = {:mode => :object}
           if routing_key.nil?
-            @routing_keys.each do |rk|
-              exchange.publish(Oj.dump(payload), :routing_key => rk) if applicable?(payload, rk)
+            MetricPulse.routing_keys.each do |rk|
+              exchange.publish(Oj.dump(payload), :routing_key => rk) if applicable?(payload.deep_symbolize_keys[:key], rk)
             end
           else
             exchange.publish(Oj.dump(payload), :routing_key => routing_key)
@@ -51,12 +51,9 @@ module MetricPulse
           @exchange ||= channel.topic(topic, :auto_delete => true)
         end
 
-        def applicable?(payload, routing_key)
-          if ['exception', 'error'].include?(payload.deep_symbolize_keys[:key])
-            routing_key == 'honeybadger_logger'
-          else
-            routing_key == 'new_relic_logger'
-          end
+        def applicable?(key, routing_key)
+          ## TO-DO: need to downcase when we compare this key
+          (MetricPulse.allowed_keys && MetricPulse.allowed_keys[routing_key].include?(key)) ? true : false
         end
 
       end

@@ -10,11 +10,8 @@ module MetricPulse
           custom_metric = Oj.load(payload).deep_symbolize_keys
           Oj.default_options = {:mode => :compat}
 
-          if custom_metric[:key] == 'exception'
-            Honeybadger.notify(custom_metric[:value]) if MetricPulse::Env.production? && Honeybadger::Agent.running?
-          else
-            ## TO-DO: what do we want here?
-          end
+          ## TO-DO: we can report custom metric as well to honeybadger depending on the key
+          Honeybadger.notify(custom_metric[:value]) if MetricPulse::Env.production? && Honeybadger::Agent.running?
         end
       end
     end
