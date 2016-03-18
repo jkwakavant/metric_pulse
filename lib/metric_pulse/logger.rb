@@ -14,8 +14,7 @@ module MetricPulse
           Oj.default_options = {:mode => :object}
           if routing_key.nil?
             ROUTING_KEYS.each do |rk|
-              ## TO-DO: we only want to send the metric to applicable endpoints only
-              exchange.publish(Oj.dump(payload), :routing_key => rk) #if rk.accepts?(payload)
+              exchange.publish(Oj.dump(payload), :routing_key => rk) if applicable?(payload, rk)
             end
           else
             exchange.publish(Oj.dump(payload), :routing_key => routing_key)
@@ -52,6 +51,14 @@ module MetricPulse
 
         def exchange(topic = "custom_metric")
           @exchange ||= channel.topic(topic, :auto_delete => true)
+        end
+
+        def applicable?(payload, routing_key)
+          if ['exception', 'error'].include?(payload.deep_symbolize_keys[:key])
+            routing_key == 'honeybadger_logger'
+          else
+            routing_key == 'new_relic_logger'
+          end
         end
 
       end
